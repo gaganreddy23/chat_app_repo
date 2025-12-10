@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: mern-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: gaganreddy508/spe-client:latest 
+          resources:
+            limits:
+              memory: "128Mi" 
+              cpu: "250m"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          # --- NECESSARY ADDITION TO USE THE CONFIGMAP ---
+          env:
+            - name: REACT_APP_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-configmap  # References the ConfigMap you created
+                  key: REACT_APP_BASE_URL  # References the key inside the ConfigMap
+          # -----------------------------------------------

@@ -1,0 +1,30 @@
+services:
+  frontend:
+    image: asrith1158/frontend-image:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_CLOUDINARY_CLOUD_NAME: dd4osfetw
+      REACT_APP_BACKEND_URL: http://localhost:8080  
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    image: asrith1158/backend-image:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: mongodb+srv://asrithnune03:asrithrishi@discuss.lieci.mongodb.net/?retryWrites=true&w=majority&appName=DiscUss
+      JWT_SECRET_KEY: jhdcjhsdvchjsdhbfasdgbvs
+      FRONTEND_URL: http://localhost:3000
+      PORT: 8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
