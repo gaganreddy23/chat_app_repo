@@ -63,13 +63,12 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // FIX: Changed from single quotes (') to triple single quotes (''') 
-                        // to handle the multiline bat command correctly in Groovy/Pipeline.
+                        // FIX: Updated the Docker image name to a publicly available and confirmed Ansible image
                         bat '''docker run --rm ^
                             -v "%cd%":/workspace ^
                             -v "%KUBECONFIG%":/root/.kube/config ^
                             --env KUBECONFIG=/root/.kube/config ^
-                            ansible/ansible:latest ^
+                            cytopia/ansible:latest ^
                             ansible-playbook -i inventory-k8 playbook-k8.yml'''
                     }
                 }
