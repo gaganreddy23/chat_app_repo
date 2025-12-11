@@ -1,43 +1,54 @@
 pipeline {
     agent any
     environment {
+        // --- APPLICATION ENVIRONMENT VARIABLES ---
         FRONTEND_URL='http://localhost:3000'
         MONGODB_URI='mongodb://localhost:27017/chatapp'
         JWT_SECRET_KEY='jhdcjhsdvchjsdhbfasdgbvs'
         REACT_APP_CLOUDINARY_CLOUD_NAME = 'dd4osfetw'
         REACT_APP_BACKEND_URL = 'http://localhost:8080'
         PORT='8080'
+        
+        // --- KUBERNETES CONFIGURATION ---
+        // CRITICAL: Path to the portable kubeconfig file on your Windows Jenkins machine.
         KUBECONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config' 
     }
     stages {
         stage('Clone Git') {
             steps {
-                // This 'git' step is fine and does not need 'sh' or 'bat'
+                // This step is correctly cloning the entire repo
                 git branch: 'master', url: 'https://github.com/gaganreddy23/chat_app_repo'
             }
         }
+        
+        // =========================================================================
+        // IMPORTANT: All subsequent 'dir' steps must include the subdirectory path 
+        // =========================================================================
+        
         stage('Build Frontend Image') {
             steps {
-                dir('client'){
-                // CHANGE: Use 'bat' for Windows Command Prompt
-                bat "npm install"
-                bat 'docker build -t frontend-image .'
+                // FIX 1: Corrected path to the 'client' directory
+                dir('SPE_Majorproject-main/client'){ 
+                    // FIX 2: Using 'bat' for Windows shell execution
+                    bat "npm install"
+                    bat 'docker build -t frontend-image .'
                 }
             }
         }
         stage('Build Backend Image') {
             steps {
-                dir('server'){
-                // CHANGE: Use 'bat' for Windows Command Prompt
-                bat "npm install"
-                bat 'docker build -t backend-image .'
+                // FIX 3: Corrected path to the 'server' directory
+                dir('SPE_Majorproject-main/server'){ 
+                    // FIX 4: Using 'bat' for Windows shell execution
+                    bat "npm install"
+                    bat 'docker build -t backend-image .'
                 }
             }
         }
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // CHANGE: Use 'bat' for Windows Command Prompt
+                    // FIX 5: Using 'bat' for Windows shell execution
                     bat "docker login --username gaganreddy508 --password Gaganreddy22?"
                     bat 'docker tag frontend-image gaganreddy508/frontend-image:latest'
                     bat 'docker push gaganreddy508/frontend-image:latest'
@@ -49,7 +60,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // CHANGE: Use 'bat' for Windows Command Prompt
+                    // FIX 6: Using 'bat' for Windows shell execution
                     bat 'ansible-galaxy collection install kubernetes.core'
                 }
             }
@@ -57,8 +68,11 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    // CHANGE: Use 'bat' for Windows Command Prompt
-                    bat 'ansible-playbook -i inventory-k8 playbook-k8.yml'
+                    // FIX 7: Run Ansible from the directory containing inventory-k8 and playbook-k8.yml
+                    dir('SPE_Majorproject-main') {
+                        // FIX 8: Using 'bat' for Windows shell execution
+                        bat 'ansible-playbook -i inventory-k8 playbook-k8.yml'
+                    }
                 }
             }
         }
