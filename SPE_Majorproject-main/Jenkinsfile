@@ -25,7 +25,7 @@ pipeline {
             steps {
                 dir('SPE_Majorproject-main/client'){ 
                     bat "npm install"
-                    bat 'docker build -t frontend-image .'
+                    bat 'docker build -t frontend-image --no-cache .'
                 }
             }
         }
