@@ -62,16 +62,15 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    // FIX 6: Use Docker to run Ansible and overcome Windows execution limitations.
-                    // This runs the container, mounts the workspace, mounts the KUBECONFIG, 
-                    // and executes the playbook inside the container.
                     dir('SPE_Majorproject-main') {
-                        bat 'docker run --rm ^
+                        // FIX: Changed from single quotes (') to triple single quotes (''') 
+                        // to handle the multiline bat command correctly in Groovy/Pipeline.
+                        bat '''docker run --rm ^
                             -v "%cd%":/workspace ^
                             -v "%KUBECONFIG%":/root/.kube/config ^
                             --env KUBECONFIG=/root/.kube/config ^
                             ansible/ansible:latest ^
-                            ansible-playbook -i inventory-k8 playbook-k8.yml'
+                            ansible-playbook -i inventory-k8 playbook-k8.yml'''
                     }
                 }
             }
