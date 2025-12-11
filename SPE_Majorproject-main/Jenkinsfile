@@ -57,7 +57,7 @@ pipeline {
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    //final test push
+                    //final test push one more 
                     // The 'ansible-playbook' command will automatically find and use 
                     // the KUBECONFIG environment variable set above.
                     sh 'ansible-playbook -i inventory-k8 playbook-k8.yml'
