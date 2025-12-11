@@ -16,6 +16,7 @@
     - name: Create Namespace
       kubernetes.core.k8s:
         # CORRECTED PATH: Use the path where KUBECONFIG is mounted inside the container
+        verify_ssl: false
         kubeconfig: /root/.kube/config
         state: present
         definition:
