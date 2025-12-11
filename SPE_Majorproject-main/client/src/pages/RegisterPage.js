@@ -166,7 +166,7 @@ const RegisterPage = () => {
 
           </form>
 
-          <p className='my-3 text-center'> do the login one fuck you  ? <Link to={"/email"} className='hover:text-primary font-semibold'>Login</Link></p>
+          <p className='my-3 text-center'> do the login one more time  ? <Link to={"/email"} className='hover:text-primary font-semibold'>Login</Link></p>
         </div>
     </div>
   )
