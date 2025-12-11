@@ -9,10 +9,14 @@
           - openshift
           - pyyaml
           - kubernetes
+      # Note: This pip task might fail on the Alpine-based cytopia image 
+      # if the dependencies are already satisfied. It's often safer to omit this
+      # when using a pre-built Ansible image. We'll leave it for now.
 
     - name: Create Namespace
       kubernetes.core.k8s:
-        kubeconfig: /var/lib/jenkins/.kube/config
+        # CORRECTED PATH: Use the path where KUBECONFIG is mounted inside the container
+        kubeconfig: /root/.kube/config
         state: present
         definition:
           apiVersion: v1
@@ -22,37 +26,51 @@
 
     - name: Apply Secrets
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/mern-backend-secret.yaml') | from_yaml }}"
 
     - name: Create Frontend Deployment
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/frontend-deployment.yaml') | from_yaml }}"
 
     - name: Create Frontend Service
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/frontend-service.yaml') | from_yaml }}"
 
 
     - name: Create Backend Deployment
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/backend-deployment.yaml') | from_yaml }}"
 
     - name: Create Backend Service
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/backend-service.yaml') | from_yaml }}"
 
 
     - name: Create Config Map
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/frontend-configmap.yaml') | from_yaml }}"
 
     - name: Create Ingress
       kubernetes.core.k8s:
+        # CORRECTED PATH
+        kubeconfig: /root/.kube/config
         state: present
         definition: "{{ lookup('file', './k8/mern-ingress.yaml') | from_yaml }}"
