@@ -53,9 +53,8 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // The Windows BAT command for running Docker.
-                        // Mounts the workspace and the KUBECONFIG file into the Ansible container.
-                        bat '''docker run --rm ^
+                        // IMPORTANT: Ensure --network=host is included here!
+                        bat '''docker run --rm --network=host ^
                             -v "%cd%":/workspace ^
                             -v "%KUBECONFIG%":/root/.kube/config ^
                             --env KUBECONFIG=/root/.kube/config ^
