@@ -11,6 +11,7 @@ pipeline {
         
         // --- KUBERNETES CONFIGURATION ---
         // CRITICAL: Path to the portable kubeconfig file on your Windows Jenkins machine.
+        // This variable is necessary for the Docker volume mount.
         KUBECONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config' 
     }
     stages {
@@ -22,14 +23,13 @@ pipeline {
         }
         
         // =========================================================================
-        // IMPORTANT: All subsequent 'dir' steps must include the subdirectory path 
+        // IMPORTANT: All subsequent 'dir' steps include the subdirectory path 
         // =========================================================================
         
         stage('Build Frontend Image') {
             steps {
-                // FIX 1: Corrected path to the 'client' directory
+                // FIX 1 & 2: Correct path and 'bat' command
                 dir('SPE_Majorproject-main/client'){ 
-                    // FIX 2: Using 'bat' for Windows shell execution
                     bat "npm install"
                     bat 'docker build -t frontend-image .'
                 }
@@ -37,9 +37,8 @@ pipeline {
         }
         stage('Build Backend Image') {
             steps {
-                // FIX 3: Corrected path to the 'server' directory
+                // FIX 3 & 4: Correct path and 'bat' command
                 dir('SPE_Majorproject-main/server'){ 
-                    // FIX 4: Using 'bat' for Windows shell execution
                     bat "npm install"
                     bat 'docker build -t backend-image .'
                 }
@@ -48,7 +47,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // FIX 5: Using 'bat' for Windows shell execution
+                    // FIX 5: Docker login and push using 'bat'
                     bat "docker login --username gaganreddy508 --password Gaganreddy22?"
                     bat 'docker tag frontend-image gaganreddy508/frontend-image:latest'
                     bat 'docker push gaganreddy508/frontend-image:latest'
@@ -57,21 +56,22 @@ pipeline {
                 }
             }
         }
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    // FIX 6: Using 'bat' for Windows shell execution
-                    bat 'ansible-galaxy collection install kubernetes.core'
-                }
-            }
-        }
+        
+        // Removed the unnecessary 'Install Dependencies' stage
+        
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    // FIX 7: Run Ansible from the directory containing inventory-k8 and playbook-k8.yml
+                    // FIX 6: Use Docker to run Ansible and overcome Windows execution limitations.
+                    // This runs the container, mounts the workspace, mounts the KUBECONFIG, 
+                    // and executes the playbook inside the container.
                     dir('SPE_Majorproject-main') {
-                        // FIX 8: Using 'bat' for Windows shell execution
-                        bat 'ansible-playbook -i inventory-k8 playbook-k8.yml'
+                        bat 'docker run --rm ^
+                            -v "%cd%":/workspace ^
+                            -v "%KUBECONFIG%":/root/.kube/config ^
+                            --env KUBECONFIG=/root/.kube/config ^
+                            ansible/ansible:latest ^
+                            ansible-playbook -i inventory-k8 playbook-k8.yml'
                     }
                 }
             }
