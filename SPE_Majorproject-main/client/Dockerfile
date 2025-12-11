@@ -18,8 +18,8 @@ FROM nginx:alpine
 # Copy the built files from the 'builder' stage into Nginx's serving directory
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Expose Nginx port
-EXPOSE 80 # <--- This line is now clean
+# Expose Nginx port 
+EXPOSE 80
 
 # Command to start Nginx
 CMD ["nginx", "-g", "daemon off;"]
