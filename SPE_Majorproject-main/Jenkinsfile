@@ -1,66 +1,64 @@
 pipeline {
     agent any
     environment {
-        // --- APPLICATION ENVIRONMENT VARIABLES ---
         FRONTEND_URL='http://localhost:3000'
         MONGODB_URI='mongodb://localhost:27017/chatapp'
         JWT_SECRET_KEY='jhdcjhsdvchjsdhbfasdgbvs'
         REACT_APP_CLOUDINARY_CLOUD_NAME = 'dd4osfetw'
         REACT_APP_BACKEND_URL = 'http://localhost:8080'
         PORT='8080'
-        
-        // --- KUBERNETES CONFIGURATION ---
-        // CRITICAL CHANGE: Using the confirmed Windows path (double backslashes for Groovy/Shell escaping).
         KUBECONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config' 
     }
     stages {
         stage('Clone Git') {
             steps {
+                // This 'git' step is fine and does not need 'sh' or 'bat'
                 git branch: 'master', url: 'https://github.com/gaganreddy23/chat_app_repo'
             }
         }
         stage('Build Frontend Image') {
             steps {
                 dir('client'){
-                    sh "npm install"
-                    sh 'docker build -t frontend-image .'
+                // CHANGE: Use 'bat' for Windows Command Prompt
+                bat "npm install"
+                bat 'docker build -t frontend-image .'
                 }
             }
         }
         stage('Build Backend Image') {
             steps {
                 dir('server'){
-                    sh "npm install"
-                    sh 'docker build -t backend-image .'
+                // CHANGE: Use 'bat' for Windows Command Prompt
+                bat "npm install"
+                bat 'docker build -t backend-image .'
                 }
             }
         }
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // WARNING: Replace with Jenkins Credentials later for security.
-                    sh "docker login --username gaganreddy508 --password Gaganreddy22?"
-                    sh 'docker tag frontend-image gaganreddy508/frontend-image:latest'
-                    sh 'docker push gaganreddy508/frontend-image:latest'
-                    sh "docker tag backend-image gaganreddy508/backend-image:latest"
-                    sh "docker push gaganreddy508/backend-image:latest"
+                    // CHANGE: Use 'bat' for Windows Command Prompt
+                    bat "docker login --username gaganreddy508 --password Gaganreddy22?"
+                    bat 'docker tag frontend-image gaganreddy508/frontend-image:latest'
+                    bat 'docker push gaganreddy508/frontend-image:latest'
+                    bat "docker tag backend-image gaganreddy508/backend-image:latest"
+                    bat "docker push gaganreddy508/backend-image:latest"
                 }
             }
         }
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'ansible-galaxy collection install kubernetes.core'
+                    // CHANGE: Use 'bat' for Windows Command Prompt
+                    bat 'ansible-galaxy collection install kubernetes.core'
                 }
             }
         }
         stage('Kubernetes Deployment') {
             steps {
                 script {
-                    //final test push one more 
-                    // The 'ansible-playbook' command will automatically find and use 
-                    // the KUBECONFIG environment variable set above.
-                    sh 'ansible-playbook -i inventory-k8 playbook-k8.yml'
+                    // CHANGE: Use 'bat' for Windows Command Prompt
+                    bat 'ansible-playbook -i inventory-k8 playbook-k8.yml'
                 }
             }
         }
