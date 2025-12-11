@@ -19,7 +19,7 @@ FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Expose Nginx port
-EXPOSE 80 # Nginx runs on port 80
+EXPOSE 80 # <--- This line is now clean
 
 # Command to start Nginx
 CMD ["nginx", "-g", "daemon off;"]
