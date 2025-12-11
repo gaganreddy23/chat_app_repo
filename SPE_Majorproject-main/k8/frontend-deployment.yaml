@@ -15,11 +15,16 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: gaganreddy508/spe-client:latest 
+          image: gaganreddy508/spe-client:latest
           resources:
-            limits:
-              memory: "128Mi" 
+            # --- RESOURCES ADJUSTMENT START ---
+            requests:
+              memory: "512Mi" # Guarantee the pod gets at least 512MB
               cpu: "250m"
+            limits:
+              memory: "2048Mi" # Set the hard limit higher (1GB) to prevent OOM termination
+              cpu: "500m"      # Increase CPU limit slightly for faster compilation
+            # --- RESOURCES ADJUSTMENT END ---
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -28,6 +33,6 @@ spec:
             - name: REACT_APP_BASE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: frontend-configmap  # References the ConfigMap you created
-                  key: REACT_APP_BASE_URL  # References the key inside the ConfigMap
+                  name: frontend-configmap
+                  key: REACT_APP_BASE_URL
           # -----------------------------------------------
