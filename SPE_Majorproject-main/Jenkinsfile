@@ -9,8 +9,9 @@ pipeline {
         REACT_APP_BACKEND_URL = 'http://localhost:8080'
         PORT='8080'
         
-        // --- KUBERNETES CONFIGURATION ---
         // CRITICAL: Path to the portable kubeconfig file on your Windows Jenkins machine.
+        // NOTE: The content of this file MUST use 'https://host.docker.internal:<port>'
+        //       for the Minikube server address.
         KUBECONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config' 
     }
     stages {
@@ -52,9 +53,8 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // Using triple quotes for multiline BAT command.
-                        // Mounts workspace to /workspace, kubeconfig to /root/.kube/config
-                        // Runs command inside the container using 'sh -c "cd /workspace && ..."' to find the playbook.
+                        // The Windows BAT command for running Docker.
+                        // Mounts the workspace and the KUBECONFIG file into the Ansible container.
                         bat '''docker run --rm ^
                             -v "%cd%":/workspace ^
                             -v "%KUBECONFIG%":/root/.kube/config ^
