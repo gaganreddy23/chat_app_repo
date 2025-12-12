@@ -53,11 +53,13 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // 1. Copy the config to the workspace so Docker can see it
+                        // 1. Copy config
                         bat 'copy "C:\\Users\\mgaga\\.kube\\config" "k8s-config"'
                         
-                        // 2. Run the entire logic in one single line to avoid Windows CMD errors
-                        bat "docker run --rm -v \"%cd%\":/workspace -v \"C:/Users/mgaga/.minikube\":/root/.minikube cytopia/ansible:latest sh -c \"cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|C:\\\\Users\\\\mgaga\\\\.minikube|/root/.minikube|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'\""
+                        // 2. Added "pip3 install" to the command chain
+                        bat """
+                        docker run --rm -v "%cd%":/workspace -v "C:/Users/mgaga/.minikube":/root/.minikube cytopia/ansible:latest sh -c "cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|C:\\\\Users\\\\mgaga\\\\.minikube|/root/.minikube|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && pip3 install --upgrade pip && pip3 install kubernetes pyyaml && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'"
+                        """
                     }
                 }
             }
