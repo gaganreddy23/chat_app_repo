@@ -55,10 +55,13 @@ pipeline {
                     dir('SPE_Majorproject-main') {
                         bat '''docker run --rm ^
                             -v "%cd%":/workspace ^
-                            -v "%KUBECONFIG%":/root/.kube/config ^
-                            --env KUBECONFIG=/root/.kube/config ^
+                            -v "C:\\ProgramData\\Jenkins\\.jenkins\\.kube\\config":/root/kube_original ^
                             cytopia/ansible:latest ^
-                            sh -c "sed -i 's/127.0.0.1/host.docker.internal/g' /root/.kube/config && sed -i 's/localhost/host.docker.internal/g' /root/.kube/config && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml"'''
+                            sh -c "cp /root/kube_original /tmp/kubeconfig && ^
+                                sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && ^
+                                export KUBECONFIG=/tmp/kubeconfig && ^
+                                kubectl create namespace mern-app --dry-run=client -o yaml | kubectl apply -f - && ^
+                                cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml"'''
                     }
                 }
             }
