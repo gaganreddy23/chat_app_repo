@@ -53,12 +53,23 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // 1. Copy config
-                        bat 'copy "C:\\Users\\mgaga\\.kube\\config" "k8s-config"'
+                        // 1. Copy the config and ALL certificates to the workspace
+                        // We try both common Minikube locations for certs
+                        bat '''
+                        copy "C:\\Users\\mgaga\\.kube\\config" "k8s-config"
+                        copy "C:\\Users\\mgaga\\.minikube\\ca.crt" "ca.crt" /Y
+                        if exist "C:\\Users\\mgaga\\.minikube\\profiles\\minikube\\client.crt" (
+                            copy "C:\\Users\\mgaga\\.minikube\\profiles\\minikube\\client.crt" "client.crt" /Y
+                            copy "C:\\Users\\mgaga\\.minikube\\profiles\\minikube\\client.key" "client.key" /Y
+                        ) else (
+                            copy "C:\\Users\\mgaga\\.minikube\\client.crt" "client.crt" /Y
+                            copy "C:\\Users\\mgaga\\.minikube\\client.key" "client.key" /Y
+                        )
+                        '''
                         
-                        // 2. The Final Fix: Converts Windows backslashes to Linux forward slashes
+                        // 2. Fix the config to point to the certs inside /workspace
                         bat """
-                        docker run --rm -v "%cd%":/workspace -v "C:/Users/mgaga/.minikube":/root/.minikube cytopia/ansible:latest sh -c "cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|C:.*.minikube|/root/.minikube|g' /tmp/kubeconfig && sed -i 's|\\\\|/|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && pip3 install kubernetes pyyaml && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'"
+                        docker run --rm -v "%cd%":/workspace cytopia/ansible:latest sh -c "cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|certificate-authority:.*|certificate-authority: /workspace/ca.crt|g' /tmp/kubeconfig && sed -i 's|client-certificate:.*|client-certificate: /workspace/client.crt|g' /tmp/kubeconfig && sed -i 's|client-key:.*|client-key: /workspace/client.key|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && pip3 install kubernetes pyyaml && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'"
                         """
                     }
                 }
