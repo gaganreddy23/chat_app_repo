@@ -56,9 +56,9 @@ pipeline {
                         // 1. Copy config
                         bat 'copy "C:\\Users\\mgaga\\.kube\\config" "k8s-config"'
                         
-                        // 2. Added "pip3 install" to the command chain
+                        // 2. The Final Fix: Converts Windows backslashes to Linux forward slashes
                         bat """
-                        docker run --rm -v "%cd%":/workspace -v "C:/Users/mgaga/.minikube":/root/.minikube cytopia/ansible:latest sh -c "cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|C:\\\\Users\\\\mgaga\\\\.minikube|/root/.minikube|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && pip3 install --upgrade pip && pip3 install kubernetes pyyaml && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'"
+                        docker run --rm -v "%cd%":/workspace -v "C:/Users/mgaga/.minikube":/root/.minikube cytopia/ansible:latest sh -c "cp /workspace/k8s-config /tmp/kubeconfig && sed -i 's/127.0.0.1/host.docker.internal/g' /tmp/kubeconfig && sed -i 's/localhost/host.docker.internal/g' /tmp/kubeconfig && sed -i 's|C:.*.minikube|/root/.minikube|g' /tmp/kubeconfig && sed -i 's|\\\\|/|g' /tmp/kubeconfig && export KUBECONFIG=/tmp/kubeconfig && pip3 install kubernetes pyyaml && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml --extra-vars 'ansible_python_interpreter=/usr/bin/python3'"
                         """
                     }
                 }
