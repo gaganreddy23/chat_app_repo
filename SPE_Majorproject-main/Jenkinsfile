@@ -53,13 +53,12 @@ pipeline {
             steps {
                 script {
                     dir('SPE_Majorproject-main') {
-                        // IMPORTANT: Ensure --network=host is included here!
-                        bat '''docker run --rm --network=host ^
+                        bat '''docker run --rm ^
                             -v "%cd%":/workspace ^
                             -v "%KUBECONFIG%":/root/.kube/config ^
                             --env KUBECONFIG=/root/.kube/config ^
                             cytopia/ansible:latest ^
-                            sh -c "cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml"'''
+                            sh -c "sed -i 's/127.0.0.1/host.docker.internal/g' /root/.kube/config && sed -i 's/localhost/host.docker.internal/g' /root/.kube/config && cd /workspace && ansible-playbook -i inventory-k8 playbook-k8.yml"'''
                     }
                 }
             }
