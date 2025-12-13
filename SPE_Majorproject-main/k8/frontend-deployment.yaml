@@ -17,22 +17,18 @@ spec:
         - name: frontend
           image: gaganreddy508/frontend-image:latest
           resources:
-            # --- RESOURCES ADJUSTMENT START ---
             requests:
-              memory: "512Mi" # Guarantee the pod gets at least 512MB
+              memory: "512Mi"
               cpu: "250m"
             limits:
-              memory: "2048Mi" # Set the hard limit higher (1GB) to prevent OOM termination
-              cpu: "500m"      # Increase CPU limit slightly for faster compilation
-            # --- RESOURCES ADJUSTMENT END ---
-          imagePullPolicy: Always
+              memory: "2048Mi"
+              cpu: "500m"
+          imagePullPolicy: Always # <--- CORRECTED: Ensures the latest image is always pulled
           ports:
             - containerPort: 80
-          # --- NECESSARY ADDITION TO USE THE CONFIGMAP ---
           env:
             - name: REACT_APP_BASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: frontend-configmap
                   key: REACT_APP_BASE_URL
-          # -----------------------------------------------
