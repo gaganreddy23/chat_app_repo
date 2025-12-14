@@ -166,7 +166,7 @@ const RegisterPage = () => {
 
           </form>
 
-          <p className='my-3 text-center'> doing and jhg i oijhagain again? <Link to={"/email"} className='hover:text-primary font-semibold'>Login</Link></p>
+          <p className='my-3 text-center'> doing again ? <Link to={"/email"} className='hover:text-primary font-semibold'>Login</Link></p>
         </div>
     </div>
   )
